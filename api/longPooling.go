@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/alonecandies/long-pooling-go/services"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
 type Message struct {
-	ID        uuid.UUID `json:"id"`
+	ID        uint64    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Message   string    `json:"msg"`
 }
@@ -35,14 +35,21 @@ func NewLongPoolingApi(sugar *zap.SugaredLogger, longPoolingService services.Lon
 }
 
 func (a *LongPoolingApi) GetMessages(c *gin.Context) {
-	var after *uuid.UUID
+	var after uint64
 
-	if id, err := uuid.Parse(c.Query("after")); err == nil {
-		if id == uuid.Nil {
-			after = nil
+	id := c.Query("id")
+
+	if id == "" {
+		after = 0
+	} else {
+		tmpAfter, err := strconv.ParseUint(id, 10, 64)
+		if err != nil {
+			c.Error(err)
+			return
 		}
-		after = &id
+		after = tmpAfter
 	}
+
 	for i := 0; i < 10; i++ {
 		messages, err := a.longPoolingService.GetMessages(after)
 		if err != nil {
@@ -53,7 +60,7 @@ func (a *LongPoolingApi) GetMessages(c *gin.Context) {
 			c.JSON(http.StatusOK, messages)
 			return
 		}
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 
 	messages := []Message{}
