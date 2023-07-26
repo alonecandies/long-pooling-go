@@ -44,7 +44,8 @@ func (s *Server) registerUserRoutes() {
 
 	v1 := s.engine.Group("v1")
 	{
-		v1.GET("/longPooling", longPoolingAPI.GetLongPooling)
+		v1.GET("/getMessages", longPoolingAPI.GetMessages)
+		v1.POST("/createMessage", longPoolingAPI.CreateMessage)
 	}
 
 }

@@ -1,6 +1,8 @@
 package inject
 
 import (
+	"sync"
+
 	"go.uber.org/zap"
 )
 
@@ -15,4 +17,8 @@ func NewInjector() *Injector {
 
 func (a *Injector) ProvideLogger() *zap.SugaredLogger {
 	return a.sugar
+}
+
+func (a *Injector) ProvideMutex() *sync.RWMutex {
+	return &sync.RWMutex{}
 }
