@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -50,8 +49,6 @@ func (a *LongPoolingService) CreateMessage(message string) (Message, error) {
 func (a *LongPoolingService) GetMessages(id uint64) ([]Message, error) {
 	a.mutex.RLock()
 	defer a.mutex.RUnlock()
-
-	fmt.Print(uint64(len(a.messages)), id)
 
 	if uint64(len(a.messages)) > id {
 		messages := make([]Message, uint64(len(a.messages))-id+1)
